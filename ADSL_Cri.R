@@ -1,5 +1,17 @@
+install.packages("usethis")
+usethis::use_git_config(user.name = "Crostin",
+                        user.email = "cro.poletti@gmail.com")
+
+usethis::use_git()
+
+usethis::create_github_token()
+
+gitcreds::gitcreds_set()
+
+
 install.packages(c("admiral.test","heaven","admiral","dplyr","tidyr","metacore","metatools","xportr"))
 install.packages("stringr")
+
 
 library(haven)
 library(admiral)

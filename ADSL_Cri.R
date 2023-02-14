@@ -1,0 +1,57 @@
+install.packages(c("admiral.test","heaven","admiral","dplyr","tidyr","metacore","metatools","xportr"))
+install.packages("stringr")
+
+library(haven)
+library(admiral)
+library(admiral.test)
+library(dplyr)
+library(tidyr)
+library(metacore)
+library(metatools)
+library(xportr)
+library(stringr)
+
+adsl_spec <- readxl::read_xlsx("/cloud/project/metadata/specs.xlsx",sheet="Variables") %>%
+filter(Dataset == "ADSL") %>%
+dplyr::rename(type = "Data Type") %>%
+  rlang::set_names(tolower) %>%
+  mutate(format = str_to_lower(format))
+
+dm <- convert_blanks_to_na(read_xpt(file.path("sdtm", "dm.xpt")))
+ds <- convert_blanks_to_na(read_xpt(file.path("sdtm", "ds.xpt")))
+ex <- convert_blanks_to_na(read_xpt(file.path("sdtm", "ex.xpt")))
+qs <- convert_blanks_to_na(read_xpt(file.path("sdtm", "qs.xpt")))
+sv <- convert_blanks_to_na(read_xpt(file.path("sdtm", "sv.xpt")))
+vs <- convert_blanks_to_na(read_xpt(file.path("sdtm", "vs.xpt")))
+sc <- convert_blanks_to_na(read_xpt(file.path("sdtm", "sc.xpt")))
+mh <- convert_blanks_to_na(read_xpt(file.path("sdtm", "mh.xpt")))
+
+
+
+pooled <- c("702","706","707","711","714","715","717")
+adsl1 <- dm %>%
+  mutate( SITEGR1 = case_when(
+    SITEID %in% pooled ~ "900",
+    TRUE ~ SITEID
+  ),
+  TRT01P = ARM,
+  TRT01PN = case_when(
+TRT01P == "Placebo" ~ 0,
+TRT01P == "Xanomeline Low Dose" ~ 54,
+TRT01P == "Xanomeline High Dose" ~ 81
+  ),
+TRT01A = TRT01P,
+TRT01AN = TRT01PN,
+AGEGR1N = case_when(
+  AGE < 65 ~ 1,
+  AGE >= 65 & AGE <= 80 ~ 2,
+  AGE > 80 ~ 3
+),
+AGEGR1 = case_when(
+  AGE < 65 ~ "<65",
+  AGE >= 65 & AGE <= 80 ~ "65-80",
+  AGE > 80 ~ ">80"
+))
+
+
+
